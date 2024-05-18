@@ -1,6 +1,6 @@
 import express from "express"
 import { verifyAdmin } from "../utils/verifyToken.js";
-import { createRoom, deleteRoom, getAllRooms, getRoom, updateRoom } from "../controllers/roomController.js";
+import { createRoom, deleteRoom, getAllRooms, getRoom, updateRoom, updateRoomAvailability } from "../controllers/roomController.js";
 
 
 const router = express.Router();
@@ -10,6 +10,7 @@ router.post("/:hotelId", verifyAdmin, createRoom);
 
 //UPDATE
 router.put("/:id", verifyAdmin, updateRoom);
+router.put("/availability/:id", updateRoomAvailability);
 
 //DELETE
 router.delete("/:id/:hotelId", verifyAdmin, deleteRoom);

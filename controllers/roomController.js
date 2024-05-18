@@ -33,6 +33,25 @@ export const updateRoom = async (req, res, next) => {
     }
 }
 
+export const updateRoomAvailability = async (req, res, next) => {
+    try{
+        await Room.updateOne({ "roomNumbers._id": req.params.id }, 
+            {
+                $push: {
+                    "roomNumbers.$.unavailableDates": req.body.dates
+                }
+            }
+        )
+        res.status(200).json({
+            success: true,
+            status: 200,
+            message: "The room's availability was updated successfully !"
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 export const deleteRoom = async (req, res, next) => {
     const hotelId = req.params.hotelId;
 
@@ -45,7 +64,11 @@ export const deleteRoom = async (req, res, next) => {
         }catch(err){
             next(err);
         }
-        res.status(200).json("Room successfully deleted !");
+        res.status(200).json({
+            success: true,
+            status: 200,
+            message: "Room successfully deleted !"
+        });
     } catch (err) {
         next(err);
     }
@@ -64,8 +87,20 @@ export const getRoom = async (req, res, next) => {
 
 export const getAllRooms = async (req, res, next) => {
     try{
-        const rooms = await Room.find();
-        res.status(200).json(rooms);
+        const page = parseInt(req.body.page) || 1;
+        const perPage = parseInt(req.body.perPage) || 10;
+
+        const skip = (page - 1) * perPage;
+        const rooms = await Room.find().skip(skip).limit(perPage);
+        const total = await Room.countDocuments();
+
+        res.status(200).json({
+            data: rooms,
+            total,
+            page,
+            perPage,
+            totalPages: Math.ceil(total / perPage)
+        });
     } catch (err) {
         next(err);
     }
